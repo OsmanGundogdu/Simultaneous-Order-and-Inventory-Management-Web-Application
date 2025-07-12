@@ -1,0 +1,51 @@
+<table class="table table-bordered table-hover mt-3">
+    <thead>
+        <form asp-action="ApproveAllOrders" method="post" style="margin-bottom: 20px;">
+            <button type="submit" class="btn btn-primary">Tümünü Onayla</button>
+        </form>
+        <tr>
+            <th>Sipariş ID</th>
+            <th>Müşteri Adı</th>
+            <th>Müşteri Tipi</th>
+            <th>Priority Score</th>
+            <th>Pending Time (Saniye)</th>
+            <th>Ürün Adı</th>
+            <th>Miktar</th>
+            <th>Durum</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.OrderID</td>
+                <td>@order.Customer?.CustomerName</td>
+                <td>@order.Customer?.CustomerType</td>
+                <td>@order.Customer?.PriorityScore.ToString("F2")</td>
+                <td>@order.Customer?.PendingTime.ToString("F0")</td>
+                <td>@order.Product?.ProductName</td>
+                <td>@order.Quantity</td>
+                <td>@order.OrderStatus</td>
+                <td>
+                    @if (order.OrderStatus == "Bekliyor")
+                    {
+                        <form asp-action="ApproveOrder" method="post" style="display:inline;">
+                            <input type="hidden" name="orderId" value="@order.OrderID" />
+                            <button type="submit" class="btn btn-success btn-sm">Onayla</button>
+                        </form>
+
+                        <form asp-action="RejectOrder" method="post" style="display:inline;">
+                            <input type="hidden" name="orderId" value="@order.OrderID" />
+                            <button type="submit" class="btn btn-danger btn-sm">Reddet</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="text-muted">Tamamlandı</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

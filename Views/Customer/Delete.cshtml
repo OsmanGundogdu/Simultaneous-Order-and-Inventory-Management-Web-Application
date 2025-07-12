@@ -1,0 +1,22 @@
+@model YazlabBirSonProje.Models.Customer
+
+@{
+    ViewData["Title"] = "Delete Customer";
+}
+
+<h1>Delete Customer</h1>
+
+<h3>Are you sure you want to delete this customer?</h3>
+<div>
+    <h4>Customer Name: @Model.CustomerName</h4>
+    <p>Budget: @Model.Budget</p>
+    <p>Customer Type: @Model.CustomerType</p>
+    <p>Total Spent: @Model.TotalSpent</p>
+</div>
+
+<form asp-action="DeleteConfirmed">
+    <div class="form-group">
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a href="@Url.Action("Index", "Customer")" class="btn btn-default">Cancel</a>
+    </div>
+</form>

@@ -1,0 +1,125 @@
+@{
+    ViewData["Title"] = "Admin Products";
+}
+
+<h2>Ürün Yönetimi</h2>
+<p>
+    <a class="btn btn-success" asp-action="Create" asp-controller="Product">Yeni Ürün Ekle</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ürün Adı</th>
+            <th>Stok</th>
+            <th>Fiyat</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (ViewBag.Products != null)
+        {
+            @foreach (var product in ViewBag.Products)
+            {
+                <tr>
+                    <td>@product.ProductName</td>
+                    <td>@product.Stock</td>
+                    <td>@product.Price</td>
+                    <td>
+                         <a asp-action="Edit" asp-controller="Admin" asp-route-id="@product.ProductID" class="btn btn-warning">Düzenle</a>
+                        <a asp-action="Delete" asp-controller="Product" asp-route-id="@product.ProductID" class="btn btn-danger" onclick="return confirm('Bu ürünü silmek istediğinizden emin misiniz?');">Sil</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3">Herhangi bir Ürün bulunamadı :(</td>
+            </tr>
+        }    
+    </tbody>
+</table>
+
+<h2>Stok Durumu</h2>
+<div class="row">
+    <div class="col-md-6">
+        <canvas id="stockBarChart" width="400" height="200"></canvas>
+    </div>
+    <div class="col-md-6">
+        <canvas id="stockPieChart" width="400" height="200"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    fetch('/Order/GetStockData')
+        .then(response => response.json())
+        .then(data => {
+            const labels = data.map(item => item.productName);
+            const stocks = data.map(item => item.stock);
+
+            function getRandomColor() {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+
+            const colors = stocks.map(stock => stock === 0 ? "red" : getRandomColor());
+
+            const barCtx = document.getElementById('stockBarChart').getContext('2d');
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Stok Durumu',
+                        data: stocks,
+                        backgroundColor: colors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: true }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            const pieCtx = document.getElementById('stockPieChart').getContext('2d');
+            new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Stok Durumu',
+                        data: stocks,
+                        backgroundColor: colors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true },
+                        tooltip: { enabled: true }
+                    }
+                }
+            });
+
+            const criticalStockLevel = 10;
+            const criticalStocks = data.filter(item => item.stock <= criticalStockLevel);
+            if (criticalStocks.length > 0) {
+                const warningMessage = criticalStocks.map(item => `${item.productName}: ${item.stock}`).join(", ");
+                alert(`Dikkat! Kritik stok seviyesine ulaşan ürünler: ${warningMessage}`);
+            }
+        })
+        .catch(error => console.error('Veri alınırken bir hata oluştu:', error));
+</script>
+

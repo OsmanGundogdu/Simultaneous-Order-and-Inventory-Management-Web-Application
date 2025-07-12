@@ -1,0 +1,51 @@
+@model IEnumerable<YazlabBirSonProje.Models.Customer>
+@{
+    ViewData["Title"] = "Customer List";
+}
+
+<h1>Customer List</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Customer ID</th>
+            <th>Customer Name</th>
+            <th>Customer Type</th>
+            <th>Budget</th>
+            <th>Pending Time (Second)</th>
+            <th>Priority Score</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var customer in Model)
+        {
+            <tr>
+                <td>@customer.CustomerID</td>
+                <td>@customer.CustomerName</td>
+                <td>@customer.CustomerType</td>
+                <td>@customer.Budget</td>
+                <td>@customer.PendingTime.ToString("F2")</td>
+                <td>@customer.PriorityScore.ToString("F2")</td>
+                <td>
+                    @if (!ViewBag.IsLoggedIn && !ViewBag.IsAdminLoggedIn)
+                    {
+                        <a href="@Url.Action("Login", "Customer", new { id = customer.CustomerID })" class="btn btn-success">Giriş Yap</a>
+                    }
+                    @if (ViewBag.IsAdminLoggedIn)
+                    {
+                        <form asp-action="DeleteUsers" asp-controller="Admin" method="post" class="d-inline">
+                            <input type="hidden" name="selectedUserIds" value="@customer.CustomerID" />
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Bu müşteriyi ve ilgili siparişleri silmek istediğinizden emin misiniz?');">Sil</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (ViewBag.IsAdminLoggedIn)
+{
+    <a href="@Url.Action("AddUsers", "Admin")" class="btn btn-primary mt-3">Add Users if there is not any</a>
+}

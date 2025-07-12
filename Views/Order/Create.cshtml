@@ -1,0 +1,105 @@
+@model YazlabBirSonProje.Models.OrderViewModel
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+<div id="processingOrder" class="d-none text-center">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p>Sipariş işleniyor...</p>
+</div>
+
+<form asp-action="Create" method="post" id="orderForm">
+    <div id="productsContainer">
+        <div class="product-group">
+            <div class="form-group">
+                <label for="ProductID">Ürün</label>
+                <select name="ProductIDs" class="form-control">
+                    @foreach (var product in ViewBag.Products)
+                    {
+                        <option value="@product.ProductID">@product.ProductName</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="Quantity">Miktar</label>
+                <input type="number" name="Quantities" class="form-control quantity-input" />
+                <div class="text-danger error-message" style="display: none;">Tek seferde en fazla 5 adet alabilirsiniz.</div>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" id="addProductButton" class="btn btn-primary mt-2">Ürün Ekle</button>
+    <button type="submit" class="btn btn-success mt-2">Sipariş Ver</button>
+</form>
+
+<script>
+    let startTime = Date.now();
+
+    document.getElementById('addProductButton').addEventListener('click', function () {
+        const productsContainer = document.getElementById('productsContainer');
+        const newProductGroup = document.querySelector('.product-group').cloneNode(true);
+        newProductGroup.querySelector('.quantity-input').value = "";
+        newProductGroup.querySelector('.error-message').style.display = "none";
+        productsContainer.appendChild(newProductGroup);
+    });
+
+    document.getElementById('orderForm').addEventListener('submit', function (e) {
+        const elapsedTime = (Date.now() - startTime) / 1000;
+
+        if (elapsedTime > 60) {
+            e.preventDefault();
+            showError("Zaman aşımı! Sipariş oluşturma işlemi 60 saniyede tamamlanamadı.");
+            return;
+        }
+
+        let hasError = false;
+        document.querySelectorAll('.quantity-input').forEach(function (input) {
+            const quantity = parseInt(input.value, 10);
+            const errorMessage = input.nextElementSibling;
+
+            if (quantity > 5) {
+                errorMessage.style.display = "block";
+                hasError = true;
+            } else {
+                errorMessage.style.display = "none";
+            }
+        });
+
+        if (hasError) {
+            e.preventDefault();
+        } else {
+            const processingElement = document.getElementById('processingOrder');
+            processingElement.classList.remove('d-none');
+        }
+    });
+
+    function showError(message) {
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "alert alert-danger";
+        errorDiv.innerText = message;
+
+        const form = document.getElementById('orderForm');
+        form.insertAdjacentElement('beforebegin', errorDiv);
+
+        setTimeout(() => errorDiv.remove(), 5000);
+    }
+</script>
+
+<style>
+    #processingOrder {
+        margin-top: 20px;
+        font-size: 1.2rem;
+    }
+</style>

@@ -1,0 +1,29 @@
+@model YazlabBirSonProje.Models.Order
+
+<h2>Sipariş Düzenle</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="OrderID" />
+
+    <div class="form-group">
+        <label for="ProductID">Ürün</label>
+        <select asp-for="ProductID" asp-items="@(new SelectList(ViewBag.Products, "ProductID", "ProductName"))" class="form-control"></select>
+    </div>
+
+    <div class="form-group mt-3">
+        <label asp-for="Quantity">Miktar</label>
+        <input asp-for="Quantity" class="form-control" type="number" min="1" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Güncelle</button>
+</form>

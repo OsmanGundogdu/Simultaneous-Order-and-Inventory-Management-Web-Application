@@ -1,0 +1,66 @@
+<table class="table table-striped" id="logTable">
+    <thead>
+        <tr>
+            <th>Log ID</th>
+            <th>Müşteri ID</th>
+            <th>Müşteri Türü</th>
+            <th>Log Türü</th>
+            <th>Ürün ve Miktar</th>
+            <th>Sonuç</th>
+            <th>Zaman</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Loglar dinamik olarak buraya gelecek zaten-->
+    </tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    const decodeUnicode = (str) => {
+        try {
+            return decodeURIComponent(escape(str));
+        } catch (e) {
+            console.error("Decode error:", e.message);
+            return str;
+        }
+    };
+
+    function fetchLogs() {
+        $.getJSON('/Admin/GetLogs', function (data) {
+            console.log("Gelen Veriler:", data);
+
+            let logTableBody = $('#logTable tbody');
+            logTableBody.empty();
+
+            if (data.length === 0) {
+                logTableBody.append(`
+                    <tr>
+                        <td colspan="7" class="text-center">Henüz bir log kaydı bulunmamaktadır.</td>
+                    </tr>
+                `);
+            } else {
+                data.forEach(log => {
+                    console.log("Log Detayları:", log);
+                    console.log(log.logID, log.customerID, log.customerType);
+
+                    logTableBody.append(`
+                        <tr>
+                            <td>${log.logID}</td>
+                            <td>${log.customerID}</td>
+                            <td>${log.customerType}</td>
+                            <td>${log.logType}</td>
+                            <td>${log.productDetails}</td>
+                            <td>${decodeUnicode(log.result)}</td>
+                            <td>${log.timestamp}</td>
+                        </tr>
+                    `);
+                });
+            }
+        });
+    }
+
+    fetchLogs();
+
+    setInterval(fetchLogs, 5000);
+</script>

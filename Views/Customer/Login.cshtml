@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Customer Login";
+}
+
+<h1>Customer Login</h1>
+<h3>Hoş geldiniz, @ViewBag.CustomerName!</h3>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">
+        @ViewBag.Error
+    </div>
+}
+
+<form asp-action="Login" method="post">
+    <input type="hidden" name="id" value="@ViewBag.CustomerID" />
+
+    <div class="form-group">
+        <label for="password">Şifre</label>
+        <input type="password" name="password" class="form-control" placeholder="Şifrenizi girin" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Giriş Yap</button>
+</form>
+
+<div>
+    <a href="@Url.Action("Index", "Customer")" class="btn btn-secondary">Geri Dön</a>
+</div>

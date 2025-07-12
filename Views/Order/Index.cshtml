@@ -1,0 +1,43 @@
+@model IEnumerable<YazlabBirSonProje.Models.Order>
+
+<h1>Siparişlerim</h1>
+
+@if (TempData["Info"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["Info"]
+    </div>
+}
+
+@if (Model == null || !Model.Any())
+{
+    <p>Henüz bir siparişiniz yok.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Ürün</th>
+                <th>Miktar</th>
+                <th>Toplam Fiyat</th>
+                <th>Sipariş Durumu</th>
+                <th>Sipariş Tarihi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>@order.ProductID</td>
+                    <td>@order.Quantity</td>
+                    <td>@order.TotalPrice</td>
+                    <td style="color: @(order.OrderStatus == "Onaylandı" ? "green" : order.OrderStatus == "Bekliyor" ? "yellow" : order.OrderStatus == "Reddedildi" ? "red" : "transparent")">
+                        @order.OrderStatus
+                    </td>
+                    <td>@order.OrderDate?.ToString("yyyy-MM-dd HH:mm")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
